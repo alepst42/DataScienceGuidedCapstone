@@ -1,0 +1,6 @@
+Type:
+"C:\Users\alann\Code\Springboard\DataScienceGuidedCapstone\.venv\Scripts\activate.ps1"
+
+jupyter notebook
+or
+python -m jupyterlab
