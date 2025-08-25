@@ -1,0 +1,500 @@
+<html>
+<head>
+<title>02_data_wrangling.ipynb</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #080808;}
+.s1 { color: #8c8c8c; font-style: italic;}
+.s2 { color: #0033b3;}
+.s3 { color: #067d17;}
+.s4 { color: #1750eb;}
+.ls0 { height: 1px; border-width: 0; color: #dfe1e5; background-color:#dfe1e5}
+</style>
+</head>
+<body bgcolor="#ffffff">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#c0c0c0" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+02_data_wrangling.ipynb</font>
+</center></td></tr></table>
+<pre><span class="s0">#%% md 
+# 2 Data wrangling&lt;a id='2_Data_wrangling'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+## 2.1 Contents&lt;a id='2.1_Contents'&gt;&lt;/a&gt; 
+* [2 Data wrangling](#2_Data_wrangling) 
+  * [2.1 Contents](#2.1_Contents) 
+  * [2.2 Introduction](#2.2_Introduction) 
+    * [2.2.1 Recap Of Data Science Problem](#2.2.1_Recap_Of_Data_Science_Problem) 
+    * [2.2.2 Introduction To Notebook](#2.2.2_Introduction_To_Notebook) 
+  * [2.3 Imports](#2.3_Imports) 
+  * [2.4 Objectives](#2.4_Objectives) 
+  * [2.5 Load The Ski Resort Data](#2.5_Load_The_Ski_Resort_Data) 
+  * [2.6 Explore The Data](#2.6_Explore_The_Data) 
+    * [2.6.1 Find Your Resort Of Interest](#2.6.1_Find_Your_Resort_Of_Interest) 
+    * [2.6.2 Number Of Missing Values By Column](#2.6.2_Number_Of_Missing_Values_By_Column) 
+    * [2.6.3 Categorical Features](#2.6.3_Categorical_Features) 
+      * [2.6.3.1 Unique Resort Names](#2.6.3.1_Unique_Resort_Names) 
+      * [2.6.3.2 Region And State](#2.6.3.2_Region_And_State) 
+      * [2.6.3.3 Number of distinct regions and states](#2.6.3.3_Number_of_distinct_regions_and_states) 
+      * [2.6.3.4 Distribution Of Resorts By Region And State](#2.6.3.4_Distribution_Of_Resorts_By_Region_And_State) 
+      * [2.6.3.5 Distribution Of Ticket Price By State](#2.6.3.5_Distribution_Of_Ticket_Price_By_State) 
+        * [2.6.3.5.1 Average weekend and weekday price by state](#2.6.3.5.1_Average_weekend_and_weekday_price_by_state) 
+        * [2.6.3.5.2 Distribution of weekday and weekend price by state](#2.6.3.5.2_Distribution_of_weekday_and_weekend_price_by_state) 
+    * [2.6.4 Numeric Features](#2.6.4_Numeric_Features) 
+      * [2.6.4.1 Numeric data summary](#2.6.4.1_Numeric_data_summary) 
+      * [2.6.4.2 Distributions Of Feature Values](#2.6.4.2_Distributions_Of_Feature_Values) 
+        * [2.6.4.2.1 SkiableTerrain_ac](#2.6.4.2.1_SkiableTerrain_ac) 
+        * [2.6.4.2.2 Snow Making_ac](#2.6.4.2.2_Snow_Making_ac) 
+        * [2.6.4.2.3 fastEight](#2.6.4.2.3_fastEight) 
+        * [2.6.4.2.4 fastSixes and Trams](#2.6.4.2.4_fastSixes_and_Trams) 
+  * [2.7 Derive State-wide Summary Statistics For Our Market Segment](#2.7_Derive_State-wide_Summary_Statistics_For_Our_Market_Segment) 
+  * [2.8 Drop Rows With No Price Data](#2.8_Drop_Rows_With_No_Price_Data) 
+  * [2.9 Review distributions](#2.9_Review_distributions) 
+  * [2.10 Population data](#2.10_Population_data) 
+  * [2.11 Target Feature](#2.11_Target_Feature) 
+    * [2.11.1 Number Of Missing Values By Row - Resort](#2.11.1_Number_Of_Missing_Values_By_Row_-_Resort) 
+  * [2.12 Save data](#2.12_Save_data) 
+  * [2.13 Summary](#2.13_Summary) 
+ <hr class="ls0">#%% md 
+## 2.2 Introduction&lt;a id='2.2_Introduction'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+This step focuses on collecting your data, organizing it, and making sure it's well defined. Paying attention to these tasks will pay off greatly later on. Some data cleaning can be done at this stage, but it's important not to be overzealous in your cleaning before you've explored the data to better understand it. <hr class="ls0">#%% md 
+### 2.2.1 Recap Of Data Science Problem&lt;a id='2.2.1_Recap_Of_Data_Science_Problem'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+The purpose of this data science project is to come up with a pricing model for ski resort tickets in our market segment. Big Mountain suspects it may not be maximizing its returns, relative to its position in the market. It also does not have a strong sense of what facilities matter most to visitors, particularly which ones they're most likely to pay more for. This project aims to build a predictive model for ticket price based on a number of facilities, or properties, boasted by resorts (*at the resorts).* 
+This model will be used to provide guidance for Big Mountain's pricing and future facility investment plans. <hr class="ls0">#%% md 
+### 2.2.2 Introduction To Notebook&lt;a id='2.2.2_Introduction_To_Notebook'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Notebooks grow organically as we explore our data. If you used paper notebooks, you could discover a mistake and cross out or revise some earlier work. Later work may give you a reason to revisit earlier work and explore it further. The great thing about Jupyter notebooks is that you can edit, add, and move cells around without needing to cross out figures or scrawl in the margin. However, this means you can lose track of your changes easily. If you worked in a regulated environment, the company may have a a policy of always dating entries and clearly crossing out any mistakes, with your initials and the date. 
+ 
+**Best practice here is to commit your changes using a version control system such as Git.** Try to get into the habit of adding and committing your files to the Git repository you're working in after you save them. You're are working in a Git repository, right? If you make a significant change, save the notebook and commit it to Git. In fact, if you're about to make a significant change, it's a good idea to commit before as well. Then if the change is a mess, you've got the previous version to go back to. 
+ 
+**Another best practice with notebooks is to try to keep them organized with helpful headings and comments.** Not only can a good structure, but associated headings help you keep track of what you've done and your current focus. Anyone reading your notebook will have a much easier time following the flow of work. Remember, that 'anyone' will most likely be you. Be kind to future you! 
+ 
+In this notebook, note how we try to use well structured, helpful headings that frequently are self-explanatory, and we make a brief note after any results to highlight key takeaways. This is an immense help to anyone reading your notebook and it will greatly help you when you come to summarise your findings. **Top tip: jot down key findings in a final summary at the end of the notebook as they arise. You can tidy this up later.** This is a great way to ensure important results don't get lost in the middle of your notebooks. <hr class="ls0">#%% md 
+In this, and subsequent notebooks, there are coding tasks marked with `#Code task n#` with code to complete. The `___` will guide you to where you need to insert code. <hr class="ls0">#%% md 
+## 2.3 Imports&lt;a id='2.3_Imports'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Placing your imports all together at the start of your notebook means you only need to consult one place to check your notebook's dependencies. By all means import something 'in situ' later on when you're experimenting, but if the imported dependency ends up being kept, you should subsequently move the import statement here with the rest. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 1#</span>
+<span class="s1">#Import pandas, matplotlib.pyplot, and seaborn in the correct lines below</span>
+<span class="s2">import </span><span class="s0">pandas </span><span class="s2">as </span><span class="s0">pd</span>
+<span class="s2">import </span><span class="s0">matplotlib.pyplot </span><span class="s2">as </span><span class="s0">plt</span>
+<span class="s2">import </span><span class="s0">seaborn </span><span class="s2">as </span><span class="s0">sns</span>
+<span class="s2">import </span><span class="s0">jupyterlab</span>
+<span class="s2">import </span><span class="s0">jupyter</span>
+<span class="s2">import </span><span class="s0">sklearn</span>
+<span class="s2">import </span><span class="s0">lxml</span>
+
+<span class="s2">from </span><span class="s0">library.sb_utils </span><span class="s2">import </span><span class="s0">save_file</span>
+<hr class="ls0"><span class="s0">#%% md 
+## 2.4 Objectives&lt;a id='2.4_Objectives'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+There are some fundamental questions to resolve in this notebook before you move on. 
+ 
+* Do you think you may have the data you need to tackle the desired question? 
+    * Have you identified the required target value? 
+    * Do you have potentially useful features? 
+* Do you have any fundamental issues with the data? <hr class="ls0">#%% md 
+## 2.5 Load The Ski Resort Data&lt;a id='2.5_Load_The_Ski_Resort_Data'&gt;&lt;/a&gt; <hr class="ls0">#%% 
+</span><span class="s1"># the supplied CSV data file is the raw_data directory</span>
+<span class="s0">ski_data = pd.read_csv(</span><span class="s3">'../raw_data/ski_resort_data.csv'</span><span class="s0">)</span><hr class="ls0"><span class="s0">#%% md 
+Good first steps in auditing the data are the info method and displaying the first few records with head. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 2#</span>
+<span class="s1">#Call the info method on ski_data to see a summary of the data</span>
+<span class="s0">ski_data.info</span><hr class="ls0"><span class="s0">#%% md 
+`AdultWeekday` is the price of an adult weekday ticket. `AdultWeekend` is the price of an adult weekend ticket. The other columns are potential features. <hr class="ls0">#%% md 
+This immediately raises the question of what quantity will you want to model? You know you want to model the ticket price, but you realise there are two kinds of ticket price! <hr class="ls0">#%% 
+</span><span class="s1">#Code task 3#</span>
+<span class="s1">#Call the head method on ski_data to print the first several rows of the data</span>
+<span class="s0">ski_data.head</span><hr class="ls0"><span class="s0">#%% md 
+The output above suggests you've made a good start getting the ski resort data organized. You have plausible column headings. You can already see you have a missing value in the `fastEight` column <hr class="ls0">#%% md 
+## 2.6 Explore The Data&lt;a id='2.6_Explore_The_Data'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+### 2.6.1 Find Your Resort Of Interest&lt;a id='2.6.1_Find_Your_Resort_Of_Interest'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Your resort of interest is called Big Mountain Resort. Check it's in the data: <hr class="ls0">#%% 
+</span><span class="s1">#Code task 4#</span>
+<span class="s1">#Filter the ski_data dataframe to display just the row for our resort with the name 'Big Mountain Resort'</span>
+<span class="s1">#Hint: you will find that the transpose of the row will give a nicer output. DataFrame's do have a</span>
+<span class="s1">#transpose method, but you can access this conveniently with the `T` property.</span>
+<span class="s0">ski_data[ski_data[</span><span class="s3">'Name'</span><span class="s0">] == </span><span class="s3">'Big Mountain Resort'</span><span class="s0">].T</span><hr class="ls0"><span class="s0">#%% md 
+It's good that your resort doesn't appear to have any missing values. <hr class="ls0">#%% md 
+### 2.6.2 Number Of Missing Values By Column&lt;a id='2.6.2_Number_Of_Missing_Values_By_Column'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+**Count the number of missing values in each column** and sort them. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 5#</span>
+<span class="s1">#Count (using `.sum()`) the number of missing values (`.isnull()`) in each column of </span>
+<span class="s1">#ski_data as well as the percentages (using `.mean()` instead of `.sum()`).</span>
+<span class="s1">#Order them (increasing or decreasing) using sort_values</span>
+<span class="s1">#Call `pd.concat` to present these in a single table (DataFrame) with the helpful column names 'count' and '%'</span>
+<span class="s0">missing = pd.concat([ski_data.isnull().sum(), </span><span class="s4">100 </span><span class="s0">* ski_data.isnull().mean()], axis=</span><span class="s4">1</span><span class="s0">)</span>
+<span class="s0">missing.columns=[</span><span class="s3">'count'</span><span class="s0">, </span><span class="s3">'%'</span><span class="s0">]</span>
+<span class="s0">missing.sort_values(by=</span><span class="s3">'count'</span><span class="s0">)</span><hr class="ls0"><span class="s0">#%% md 
+`fastEight` has the most missing values, at just over 50%. Unfortunately, you see you're also missing quite a few of your desired target quantity, the ticket price, which is missing 15-16% of values. `AdultWeekday` is missing in a few more records than `AdultWeekend`. What overlap is there in these missing values? This is a question you'll want to investigate. You should also point out that `isnull()` is not the only indicator of missing data. Sometimes 'missingness' can be encoded, perhaps by a -1 or 999. Such values are typically chosen because they are &quot;obviously&quot; not genuine values. If you were capturing data on people's heights and weights but missing someone's height, you could certainly encode that as a 0 because no one has a height of zero (in any units). Yet such entries would not be revealed by `isnull()`. Here, you need a data dictionary and/or to spot such values as part of looking for outliers. Someone with a height of zero should definitely show up as an outlier! <hr class="ls0">#%% md 
+### 2.6.3 Categorical Features&lt;a id='2.6.3_Categorical_Features'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+So far you've examined only the numeric features. Now you inspect categorical ones such as resort name and state. These are discrete entities. 'Alaska' is a name. Although names can be sorted alphabetically, it makes no sense to take the average of 'Alaska' and 'Arizona'. Similarly, 'Alaska' is before 'Arizona' only lexicographically; it is neither 'less than' nor 'greater than' 'Arizona'. As such, they tend to require different handling than strictly numeric quantities. Note, a feature _can_ be numeric but also categorical. For example, instead of giving the number of `fastEight` lifts, a feature might be `has_fastEights` and have the value 0 or 1 to denote absence or presence of such a lift. In such a case it would not make sense to take an average of this or perform other mathematical calculations on it. Although you digress a little to make a point, month numbers are also, strictly speaking, categorical features. Yes, when a month is represented by its number (1 for January, 2 for Februrary etc.) it provides a convenient way to graph trends over a year. And, arguably, there is some logical interpretation of the average of 1 and 3 (January and March) being 2 (February). However, clearly December of one years precedes January of the next and yet 12 as a number is not less than 1. The numeric quantities in the section above are truly numeric; they are the number of feet in the drop, or acres or years open or the amount of snowfall etc. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 6#</span>
+<span class="s1">#Use ski_data's `select_dtypes` method to select columns of dtype 'object'</span>
+<span class="s0">ski_data.select_dtypes(</span><span class="s3">'object'</span><span class="s0">)</span><hr class="ls0"><span class="s0">#%% md 
+You saw earlier on that these three columns had no missing values. But are there any other issues with these columns? Sensible questions to ask here include: 
+ 
+* Is `Name` (or at least a combination of Name/Region/State) unique? 
+* Is `Region` always the same as `state`? <hr class="ls0">#%% md 
+#### 2.6.3.1 Unique Resort Names&lt;a id='2.6.3.1_Unique_Resort_Names'&gt;&lt;/a&gt; <hr class="ls0">#%% 
+</span><span class="s1">#Code task 7#</span>
+<span class="s1">#Use pandas' Series method `value_counts` to find any duplicated resort names</span>
+<span class="s0">ski_data[</span><span class="s3">'Name'</span><span class="s0">].value_counts().head()</span><hr class="ls0"><span class="s0">#%% md 
+You have a duplicated resort name: Crystal Mountain. <hr class="ls0">#%% md 
+**Q: 1** Is this resort duplicated if you take into account Region and/or state as well? <hr class="ls0">#%% 
+</span><span class="s1">#Code task 8#</span>
+<span class="s1">#Concatenate the string columns 'Name' and 'Region' and count the values again (as above)</span>
+<span class="s0">(ski_data[</span><span class="s3">'Name'</span><span class="s0">] + </span><span class="s3">', ' </span><span class="s0">+ ski_data[</span><span class="s3">'Region'</span><span class="s0">]).value_counts().head()</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">#Code task 9#</span>
+<span class="s1">#Concatenate 'Name' and 'state' and count the values again (as above)</span>
+<span class="s0">(ski_data[</span><span class="s3">'Name'</span><span class="s0">] + </span><span class="s3">', ' </span><span class="s0">+ ski_data[</span><span class="s3">'state'</span><span class="s0">]).value_counts().head()</span><hr class="ls0"><span class="s0">#%% raw 
+**NB** because you know `value_counts()` sorts descending, you can use the `head()` method and know the rest of the counts must be 1. <hr class="ls0">#%% md 
+**A: 1** No, Crystal Mountain is no longer duplicated when taking into account either region or state, otherwise it would appear in the first row. <hr class="ls0">#%% 
+ski_data[ski_data[</span><span class="s3">'Name'</span><span class="s0">] == </span><span class="s3">'Crystal Mountain'</span><span class="s0">]</span><hr class="ls0"><span class="s0">#%% md 
+So there are two Crystal Mountain resorts, but they are clearly two different resorts in two different states. This is a powerful signal that you have unique records on each row. <hr class="ls0">#%% md 
+#### 2.6.3.2 Region And State&lt;a id='2.6.3.2_Region_And_State'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+What's the relationship between region and state? <hr class="ls0">#%% md 
+You know they are the same in many cases (e.g. both the Region and the state are given as 'Michigan'). In how many cases do they differ? <hr class="ls0">#%% 
+</span><span class="s1">#Code task 10#</span>
+<span class="s1">#Calculate the number of times Region does not equal state</span>
+<span class="s0">(ski_data.Region != ski_data.state).value_counts()</span><hr class="ls0"><span class="s0">#%% md 
+You know what a state is. What is a region? You can tabulate the distinct values along with their respective frequencies using `value_counts()`. <hr class="ls0">#%% 
+ski_data[</span><span class="s3">'Region'</span><span class="s0">].value_counts()</span><hr class="ls0"><span class="s0">#%% md 
+A casual inspection by eye reveals some non-state names such as Sierra Nevada, Salt Lake City, and Northern California. Tabulate the differences between Region and state. On a note regarding scaling to larger data sets, you might wonder how you could spot such cases when presented with millions of rows. This is an interesting point. Imagine you have access to a database with a Region and state column in a table and there are millions of rows. You wouldn't eyeball all the rows looking for differences! Bear in mind that our first interest lies in establishing the answer to the question &quot;Are they always the same?&quot; One approach might be to ask the database to return records where they differ, but limit the output to 10 rows. If there were differences, you'd only get up to 10 results, and so you wouldn't know whether you'd located all differences, but you'd know that there were 'a nonzero number' of differences. If you got an empty result set back, then you would know that the two columns always had the same value. At the risk of digressing, some values in one column only might be NULL (missing) and different databases treat NULL differently, so be aware that on many an occasion a seamingly 'simple' question gets very interesting to answer very quickly! <hr class="ls0">#%% 
+</span><span class="s1">#Code task 11#</span>
+<span class="s1">#Filter the ski_data dataframe for rows where 'Region' and 'state' are different,</span>
+<span class="s1">#group that by 'state' and perform `value_counts` on the 'state'</span>
+<span class="s0">(ski_data[ski_data[</span><span class="s3">'Region'</span><span class="s0">] != ski_data[</span><span class="s3">'state'</span><span class="s0">]]</span>
+ <span class="s0">.groupby(</span><span class="s3">'state'</span><span class="s0">)[</span><span class="s3">'state'</span><span class="s0">]</span>
+ <span class="s0">.value_counts())</span><hr class="ls0"><span class="s0">#%% md 
+The vast majority of the differences are in California, with most Regions being called Sierra Nevada and just one referred to as Northern California. <hr class="ls0">#%% md 
+#### 2.6.3.3 Number of distinct regions and states&lt;a id='2.6.3.3_Number_of_distinct_regions_and_states'&gt;&lt;/a&gt; <hr class="ls0">#%% 
+</span><span class="s1">#Code task 12#</span>
+<span class="s1">#Select the 'Region' and 'state' columns from ski_data and use the `nunique` method to calculate</span>
+<span class="s1">#the number of unique values in each</span>
+<span class="s0">ski_data[[</span><span class="s3">'Region'</span><span class="s0">, </span><span class="s3">'state'</span><span class="s0">]].nunique()</span><hr class="ls0"><span class="s0">#%% md 
+Because a few states are split across multiple named regions, there are slightly more unique regions than states. <hr class="ls0">#%% md 
+#### 2.6.3.4 Distribution Of Resorts By Region And State&lt;a id='2.6.3.4_Distribution_Of_Resorts_By_Region_And_State'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+If this is your first time using [matplotlib](https://matplotlib.org/3.2.2/index.html)'s [subplots](https://matplotlib.org/3.2.2/api/_as_gen/matplotlib.pyplot.subplots.html), you may find the online documentation useful. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 13#</span>
+<span class="s1">#Create two subplots on 1 row and 2 columns with a figsize of (12, 8)</span>
+<span class="s0">fig, ax = plt.subplots(</span><span class="s4">1</span><span class="s0">, </span><span class="s4">2</span><span class="s0">, figsize=(</span><span class="s4">12</span><span class="s0">, </span><span class="s4">8</span><span class="s0">))</span>
+<span class="s1">#Specify a horizontal barplot ('barh') as kind of plot (kind=)</span>
+<span class="s0">ski_data.Region.value_counts().sort_values(ascending=</span><span class="s2">True</span><span class="s0">).plot(kind=</span><span class="s3">'barh'</span><span class="s0">, ax=ax[</span><span class="s4">0</span><span class="s0">])</span>
+<span class="s1">#Give the plot a helpful title of 'Region'</span>
+<span class="s0">ax[</span><span class="s4">0</span><span class="s0">].set_title(</span><span class="s3">'Region'</span><span class="s0">)</span>
+<span class="s1">#Label the xaxis 'Count'</span>
+<span class="s0">ax[</span><span class="s4">0</span><span class="s0">].set_xlabel(</span><span class="s3">'Count'</span><span class="s0">)</span>
+<span class="s1">#Specify a horizontal barplot ('barh') as kind of plot (kind=)</span>
+<span class="s0">ski_data.state.value_counts().sort_values(ascending=</span><span class="s2">True</span><span class="s0">).plot(kind=</span><span class="s3">'barh'</span><span class="s0">, ax=ax[</span><span class="s4">1</span><span class="s0">])</span>
+<span class="s1">#Give the plot a helpful title of 'state'</span>
+<span class="s0">ax[</span><span class="s4">1</span><span class="s0">].set_title(</span><span class="s3">'State'</span><span class="s0">)</span>
+<span class="s1">#Label the xaxis 'Count'</span>
+<span class="s0">ax[</span><span class="s4">1</span><span class="s0">].set_xlabel(</span><span class="s3">'Count'</span><span class="s0">)</span>
+<span class="s1">#Give the subplots a little &quot;breathing room&quot; with a wspace of 0.5</span>
+<span class="s0">plt.subplots_adjust(wspace=</span><span class="s4">0.5</span><span class="s0">);</span>
+<span class="s1">#You're encouraged to explore a few different figure sizes, orientations, and spacing here</span>
+<span class="s1"># as the importance of easy-to-read and informative figures is frequently understated</span>
+<span class="s1"># and you will find the ability to tweak figures invaluable later on</span><hr class="ls0"><span class="s0">#%% md 
+How's your geography? Looking at the distribution of States, you see New York accounting for the majority of resorts. Our target resort is in Montana, which comes in at 13th place. You should think carefully about how, or whether, you use this information. Does New York command a premium because of its proximity to population? Even if a resort's State were a useful predictor of ticket price, your main interest lies in Montana. Would you want a model that is skewed for accuracy by New York? Should you just filter for Montana and create a Montana-specific model? This would slash your available data volume. Your problem task includes the contextual insight that the data are for resorts all belonging to the same market share. This suggests one might expect prices to be similar amongst them. You can look into this. A boxplot grouped by State is an ideal way to quickly compare prices. Another side note worth bringing up here is that, in reality, the best approach here definitely would include consulting with the client or other domain expert. They might know of good reasons for treating states equivalently or differently. The data scientist is rarely the final arbiter of such a decision. But here, you'll see if we can find any supporting evidence for treating states the same or differently. <hr class="ls0">#%% md 
+#### 2.6.3.5 Distribution Of Ticket Price By State&lt;a id='2.6.3.5_Distribution_Of_Ticket_Price_By_State'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Our primary focus is our Big Mountain resort, in Montana. Does the state give you any clues to help decide what your primary target response feature should be (weekend or weekday ticket prices)? <hr class="ls0">#%% md 
+##### 2.6.3.5.1 Average weekend and weekday price by state&lt;a id='2.6.3.5.1_Average_weekend_and_weekday_price_by_state'&gt;&lt;/a&gt; <hr class="ls0">#%% 
+</span><span class="s1">#Code task 14#</span>
+<span class="s1"># Calculate average weekday and weekend price by state and sort by the average of the two</span>
+<span class="s1"># Hint: use the pattern dataframe.groupby(&lt;grouping variable&gt;)[&lt;list of columns&gt;].mean()</span>
+<span class="s0">state_price_means = ski_data.groupby(</span><span class="s3">'state'</span><span class="s0">)[[</span><span class="s3">'AdultWeekday'</span><span class="s0">, </span><span class="s3">'AdultWeekend'</span><span class="s0">]].mean()</span>
+<span class="s0">state_price_means.head()</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1"># The next bit simply reorders the index by increasing average of weekday and weekend prices</span>
+<span class="s1"># Compare the index order you get from</span>
+<span class="s1"># state_price_means.index</span>
+<span class="s1"># with</span>
+<span class="s1"># state_price_means.mean(axis=1).sort_values(ascending=False).index</span>
+<span class="s1"># See how this expression simply sits within the reindex()</span>
+<span class="s0">(state_price_means.reindex(index=state_price_means.mean(axis=</span><span class="s4">1</span><span class="s0">)</span>
+    <span class="s0">.sort_values(ascending=</span><span class="s2">False</span><span class="s0">)</span>
+    <span class="s0">.index)</span>
+    <span class="s0">.plot(kind=</span><span class="s3">'barh'</span><span class="s0">, figsize=(</span><span class="s4">10</span><span class="s0">, </span><span class="s4">10</span><span class="s0">), title=</span><span class="s3">'Average ticket price by State'</span><span class="s0">))</span>
+<span class="s0">plt.xlabel(</span><span class="s3">'Price ($)'</span><span class="s0">);</span><hr class="ls0"><span class="s0">#%% md 
+The figure above represents a dataframe with two columns, one for the average prices of each kind of ticket. This tells you how the average ticket price varies from state to state. But can you get more insight into the difference in the distributions between states? <hr class="ls0">#%% md 
+##### 2.6.3.5.2 Distribution of weekday and weekend price by state&lt;a id='2.6.3.5.2_Distribution_of_weekday_and_weekend_price_by_state'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Next, you can transform the data into a single column for price with a new categorical column that represents the ticket type. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 15#</span>
+<span class="s1">#Use the pd.melt function, pass in the ski_data columns 'state', 'AdultWeekday', and 'Adultweekend' only,</span>
+<span class="s1">#specify 'state' for `id_vars`</span>
+<span class="s1">#gather the ticket prices from the 'Adultweekday' and 'AdultWeekend' columns using the `value_vars` argument,</span>
+<span class="s1">#call the resultant price column 'Price' via the `value_name` argument,</span>
+<span class="s1">#name the weekday/weekend indicator column 'Ticket' via the `var_name` argument</span>
+
+<span class="s0">ticket_prices = pd.melt(ski_data[[</span><span class="s3">'state'</span><span class="s0">, </span><span class="s3">'AdultWeekday'</span><span class="s0">, </span><span class="s3">'AdultWeekend'</span><span class="s0">]],</span>
+                        <span class="s0">id_vars=</span><span class="s3">'state'</span><span class="s0">,</span>
+                        <span class="s0">var_name=</span><span class="s3">'Ticket'</span><span class="s0">,</span>
+                        <span class="s0">value_vars=[</span><span class="s3">'AdultWeekday'</span><span class="s0">, </span><span class="s3">'AdultWeekend'</span><span class="s0">],</span>
+                        <span class="s0">value_name=</span><span class="s3">'Price'</span><span class="s0">)</span><hr class="ls0"><span class="s0">#%% 
+ticket_prices.head()</span><hr class="ls0"><span class="s0">#%% md 
+This is now in a format we can pass to [seaborn](https://seaborn.pydata.org/)'s [boxplot](https://seaborn.pydata.org/generated/seaborn.boxplot.html) function to create boxplots of the ticket price distributions for each ticket type for each state. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 16#</span>
+<span class="s1">#Create a seaborn boxplot of the ticket price dataframe we created above,</span>
+<span class="s1">#with 'state' on the x-axis, 'Price' as the y-value, and a hue that indicates 'Ticket'</span>
+<span class="s1">#This will use boxplot's x, y, hue, and data arguments.</span>
+
+<span class="s0">order = ticket_prices.groupby(</span><span class="s3">'state'</span><span class="s0">)[</span><span class="s3">'Price'</span><span class="s0">].mean().sort_values(ascending=</span><span class="s2">False</span><span class="s0">).index</span>
+
+<span class="s0">plt.subplots(figsize=(</span><span class="s4">12</span><span class="s0">, </span><span class="s4">8</span><span class="s0">))</span>
+<span class="s0">sns.boxplot(x=</span><span class="s3">'state'</span><span class="s0">, y=</span><span class="s3">'Price'</span><span class="s0">, hue=</span><span class="s3">'Ticket'</span><span class="s0">, data=ticket_prices, order=order)</span>
+<span class="s0">plt.xticks(rotation=</span><span class="s3">'vertical'</span><span class="s0">)</span>
+<span class="s0">plt.ylabel(</span><span class="s3">'Price ($)'</span><span class="s0">)</span>
+<span class="s0">plt.xlabel(</span><span class="s3">'State'</span><span class="s0">);</span><hr class="ls0"><span class="s0">#%% md 
+Aside from some relatively expensive ticket prices in California, Colorado, and Utah, most prices appear to lie in a broad band from around 25 to over 100 dollars. Some States show more variability than others. Montana and South Dakota, for example, both show fairly small variability as well as matching weekend and weekday ticket prices. Nevada and Utah, on the other hand, show the most range in prices. Some States, notably North Carolina and Virginia, have weekend prices far higher than weekday prices. You could be inspired from this exploration to consider a few potential groupings of resorts, those with low spread, those with lower averages, and those that charge a premium for weekend tickets. However, you're told that you are taking all resorts to be part of the same market share, you  could argue against further segment the resorts. Nevertheless, ways to consider using the State information in your modelling include: 
+ 
+* disregard State completely 
+* retain all State information 
+* retain State in the form of Montana vs not Montana, as our target resort is in Montana 
+ 
+You've also noted another effect above: some States show a marked difference between weekday and weekend ticket prices. It may make sense to allow a model to take into account not just State but also weekend vs weekday. <hr class="ls0">#%% md 
+Thus we currently have two main questions you want to resolve: 
+ 
+* What do you do about the two types of ticket price? 
+* What do you do about the state information? <hr class="ls0">#%% md 
+### 2.6.4 Numeric Features&lt;a id='2.6.4_Numeric_Features'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Having decided to reserve judgement on how exactly you utilize the State, turn your attention to cleaning the numeric features. <hr class="ls0">#%% md 
+#### 2.6.4.1 Numeric data summary&lt;a id='2.6.4.1_Numeric_data_summary'&gt;&lt;/a&gt; <hr class="ls0">#%% 
+</span><span class="s1">#Code task 17#</span>
+<span class="s1">#Call ski_data's `describe` method for a statistical summary of the numerical columns</span>
+<span class="s1">#Hint: there are fewer summary stat columns than features, so displaying the transpose</span>
+<span class="s1">#will be useful again</span>
+<span class="s0">ski_data.describe().T</span><hr class="ls0"><span class="s0">#%% md 
+Recall you're missing the ticket prices for some 16% of resorts. This is a fundamental problem that means you simply lack the required data for those resorts and will have to drop those records. But you may have a weekend price and not a weekday price, or vice versa. You want to keep any price you have. <hr class="ls0">#%% 
+missing_price = ski_data[[</span><span class="s3">'AdultWeekend'</span><span class="s0">, </span><span class="s3">'AdultWeekday'</span><span class="s0">]].isnull().sum(axis=</span><span class="s4">1</span><span class="s0">)</span>
+<span class="s0">missing_price.value_counts()/len(missing_price) * </span><span class="s4">100</span><hr class="ls0"><span class="s0">#%% md 
+Just over 82% of resorts have no missing ticket price, 3% are missing one value, and 14% are missing both. You will definitely want to drop the records for which you have no price information, however you will not do so just yet. There may still be useful information about the distributions of other features in that 14% of the data. <hr class="ls0">#%% md 
+#### 2.6.4.2 Distributions Of Feature Values&lt;a id='2.6.4.2_Distributions_Of_Feature_Values'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Note that, although we are still in the 'data wrangling and cleaning' phase rather than exploratory data analysis, looking at distributions of features is immensely useful in getting a feel for whether the values look sensible and whether there are any obvious outliers to investigate. Some exploratory data analysis belongs here, and data wrangling will inevitably occur later on. It's more a matter of emphasis. Here, we're interesting in focusing on whether distributions look plausible or wrong. Later on, we're more interested in relationships and patterns. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 18#</span>
+<span class="s1">#Call ski_data's `hist` method to plot histograms of each of the numeric features</span>
+<span class="s1">#Try passing it an argument figsize=(15,10)</span>
+<span class="s1">#Try calling plt.subplots_adjust() with an argument hspace=0.5 to adjust the spacing</span>
+<span class="s1">#It's important you create legible and easy-to-read plots</span>
+<span class="s0">ski_data.hist(figsize=(</span><span class="s4">15</span><span class="s0">,</span><span class="s4">10</span><span class="s0">))</span>
+<span class="s0">plt.subplots_adjust(hspace=</span><span class="s4">0.5</span><span class="s0">)</span>
+<span class="s1">#Hint: notice how the terminating ';' &quot;swallows&quot; some messy output and leads to a tidier notebook</span><hr class="ls0"><span class="s0">#%% md 
+What features do we have possible cause for concern about and why? 
+ 
+* SkiableTerrain_ac because values are clustered down the low end, 
+* Snow Making_ac for the same reason, 
+* fastEight because all but one value is 0 so it has very little variance, and half the values are missing, 
+* fastSixes raises an amber flag; it has more variability, but still mostly 0, 
+* trams also may get an amber flag for the same reason, 
+* yearsOpen because most values are low but it has a maximum of 2019, which strongly suggests someone recorded calendar year rather than number of years. <hr class="ls0">#%% md 
+##### 2.6.4.2.1 SkiableTerrain_ac&lt;a id='2.6.4.2.1_SkiableTerrain_ac'&gt;&lt;/a&gt; <hr class="ls0">#%% 
+</span><span class="s1">#Code task 19#</span>
+<span class="s1">#Filter the 'SkiableTerrain_ac' column to print the values greater than 10000</span>
+<span class="s0">ski_data[</span><span class="s3">'SkiableTerrain_ac'</span><span class="s0">][ski_data[</span><span class="s3">'SkiableTerrain_ac'</span><span class="s0">] &gt; </span><span class="s4">10000</span><span class="s0">]</span><hr class="ls0"><span class="s0">#%% md 
+**Q: 2** One resort has an incredibly large skiable terrain area! Which is it? <hr class="ls0">#%% 
+</span><span class="s1">#Code task 20#</span>
+<span class="s1">#Now you know there's only one, print the whole row to investigate all values, including seeing the resort name</span>
+<span class="s1">#Hint: don't forget the transpose will be helpful here</span>
+<span class="s0">ski_data[ski_data[</span><span class="s3">'SkiableTerrain_ac'</span><span class="s0">] &gt; </span><span class="s4">10000</span><span class="s0">].T</span><hr class="ls0"><span class="s0">#%% md 
+**A: 2** Silverton Mountain is listed as having a value of 26819.0 <hr class="ls0">#%% md 
+But what can you do when you have one record that seems highly suspicious? <hr class="ls0">#%% md 
+You can see if your data are correct. Search for &quot;silverton mountain skiable area&quot;. If you do this, you get some [useful information](https://www.google.com/search?q=silverton+mountain+skiable+area). <hr class="ls0">#%% md 
+![Silverton Mountain information](images/silverton_mountain_info.png) <hr class="ls0">#%% md 
+You can spot check data. You see your top and base elevation values agree, but the skiable area is very different. Your suspect value is 26819, but the value you've just looked up is 1819. The last three digits agree. This sort of error could have occured in transmission or some editing or transcription stage. You could plausibly replace the suspect value with the one you've just obtained. Another cautionary note to make here is that although you're doing this in order to progress with your analysis, this is most definitely an issue that should have been raised and fed back to the client or data originator as a query. You should view this &quot;data correction&quot; step as a means to continue (documenting it carefully as you do in this notebook) rather than an ultimate decision as to what is correct. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 21#</span>
+<span class="s1">#Use the .loc accessor to print the 'SkiableTerrain_ac' value only for this resort</span>
+<span class="s0">ski_data.loc[</span><span class="s4">39</span><span class="s0">, </span><span class="s3">'SkiableTerrain_ac'</span><span class="s0">]</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">#Code task 22#</span>
+<span class="s1">#Use the .loc accessor again to modify this value with the correct value of 1819</span>
+<span class="s0">ski_data.loc[</span><span class="s4">39</span><span class="s0">, </span><span class="s3">'SkiableTerrain_ac'</span><span class="s0">] = </span><span class="s4">1819</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">#Code task 23#</span>
+<span class="s1">#Use the .loc accessor a final time to verify that the value has been modified</span>
+<span class="s0">ski_data.loc[</span><span class="s4">39</span><span class="s0">, </span><span class="s3">'SkiableTerrain_ac'</span><span class="s0">]</span><hr class="ls0"><span class="s0">#%% md 
+**NB whilst you may become suspicious about your data quality, and you know you have missing values, you will not here dive down the rabbit hole of checking all values or web scraping to replace missing values.** <hr class="ls0">#%% md 
+What does the distribution of skiable area look like now? <hr class="ls0">#%% 
+ski_data.SkiableTerrain_ac.hist(bins=</span><span class="s4">30</span><span class="s0">)</span>
+<span class="s0">plt.xlabel(</span><span class="s3">'SkiableTerrain_ac'</span><span class="s0">)</span>
+<span class="s0">plt.ylabel(</span><span class="s3">'Count'</span><span class="s0">)</span>
+<span class="s0">plt.title(</span><span class="s3">'Distribution of skiable area (acres) after replacing erroneous value'</span><span class="s0">);</span><hr class="ls0"><span class="s0">#%% md 
+You now see a rather long tailed distribution. You may wonder about the now most extreme value that is above 8000, but similarly you may also wonder about the value around 7000. If you wanted to spend more time manually checking values you could, but leave this for now. The above distribution is plausible. <hr class="ls0">#%% md 
+##### 2.6.4.2.2 Snow Making_ac&lt;a id='2.6.4.2.2_Snow_Making_ac'&gt;&lt;/a&gt; <hr class="ls0">#%% 
+ski_data[</span><span class="s3">'Snow Making_ac'</span><span class="s0">][ski_data[</span><span class="s3">'Snow Making_ac'</span><span class="s0">] &gt; </span><span class="s4">1000</span><span class="s0">]</span><hr class="ls0"><span class="s0">#%% 
+ski_data[ski_data[</span><span class="s3">'Snow Making_ac'</span><span class="s0">] &gt; </span><span class="s4">3000</span><span class="s0">].T</span><hr class="ls0"><span class="s0">#%% md 
+You can adopt a similar approach as for the suspect skiable area value and do some spot checking. To save time, here is a link to the website for [Heavenly Mountain Resort](https://www.skiheavenly.com/the-mountain/about-the-mountain/mountain-info.aspx). From this you can glean that you have values for skiable terrain that agree. Furthermore, you can read that snowmaking covers 60% of the trails. <hr class="ls0">#%% md 
+What, then, is your rough guess for the area covered by snowmaking? <hr class="ls0">#%% 
+</span><span class="s4">.6 </span><span class="s0">* </span><span class="s4">4800</span><hr class="ls0"><span class="s0">#%% md 
+This is less than the value of 3379 in your data so you may have a judgement call to make. However, notice something else. You have no ticket pricing information at all for this resort. Any further effort spent worrying about values for this resort will be wasted. You'll simply be dropping the entire row! <hr class="ls0">#%% md 
+##### 2.6.4.2.3 fastEight&lt;a id='2.6.4.2.3_fastEight'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Look at the different fastEight values more closely: <hr class="ls0">#%% 
+ski_data.fastEight.value_counts()</span><hr class="ls0"><span class="s0">#%% md 
+Drop the fastEight column in its entirety; half the values are missing and all but the others are the value zero. There is essentially no information in this column. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 24#</span>
+<span class="s1">#Drop the 'fastEight' column from ski_data. Use inplace=True</span>
+<span class="s0">ski_data.drop(columns=</span><span class="s3">'fastEight'</span><span class="s0">, inplace=</span><span class="s2">True</span><span class="s0">)</span><hr class="ls0"><span class="s0">#%% md 
+What about yearsOpen? How many resorts have purportedly been open for more than 100 years? <hr class="ls0">#%% 
+</span><span class="s1">#Code task 25#</span>
+<span class="s1">#Filter the 'yearsOpen' column for values greater than 100</span>
+<span class="s0">ski_data[</span><span class="s3">'yearsOpen'</span><span class="s0">][ski_data[</span><span class="s3">'yearsOpen'</span><span class="s0">] &gt; </span><span class="s4">100</span><span class="s0">]</span><hr class="ls0"><span class="s0">#%% md 
+Okay, one seems to have been open for 104 years. But beyond that, one is down as having been open for 2019 years. This is wrong! What shall you do about this? <hr class="ls0">#%% md 
+What does the distribution of yearsOpen look like if you exclude just the obviously wrong one? <hr class="ls0">#%% 
+</span><span class="s1">#Code task 26#</span>
+<span class="s1">#Call the hist method on 'yearsOpen' after filtering for values under 1000</span>
+<span class="s1">#Pass the argument bins=30 to hist(), but feel free to explore other values</span>
+<span class="s0">ski_data[</span><span class="s3">'yearsOpen'</span><span class="s0">][ski_data[</span><span class="s3">'yearsOpen'</span><span class="s0">] &lt; </span><span class="s4">1000</span><span class="s0">].hist(bins=</span><span class="s4">30</span><span class="s0">)</span>
+<span class="s0">plt.xlabel(</span><span class="s3">'Years open'</span><span class="s0">)</span>
+<span class="s0">plt.ylabel(</span><span class="s3">'Count'</span><span class="s0">)</span>
+<span class="s0">plt.title(</span><span class="s3">'Distribution of years open excluding 2019'</span><span class="s0">);</span><hr class="ls0"><span class="s0">#%% md 
+The above distribution of years seems entirely plausible, including the 104 year value. You can certainly state that no resort will have been open for 2019 years! It likely means the resort opened in 2019. It could also mean the resort is due to open in 2019. You don't know when these data were gathered! <hr class="ls0">#%% md 
+Let's review the summary statistics for the years under 1000. <hr class="ls0">#%% 
+ski_data.yearsOpen[ski_data.yearsOpen &lt; </span><span class="s4">1000</span><span class="s0">].describe()</span><hr class="ls0"><span class="s0">#%% md 
+The smallest number of years open otherwise is 6. You can't be sure whether this resort in question has been open zero years or one year and even whether the numbers are projections or actual. In any case, you would be adding a new youngest resort so it feels best to simply drop this row. <hr class="ls0">#%% 
+ski_data = ski_data[ski_data.yearsOpen &lt; </span><span class="s4">1000</span><span class="s0">]</span><hr class="ls0"><span class="s0">#%% md 
+##### 2.6.4.2.4 fastSixes and Trams&lt;a id='2.6.4.2.4_fastSixes_and_Trams'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+The other features you had mild concern over, you will not investigate further. Perhaps take some care when using these features. <hr class="ls0">#%% md 
+## 2.7 Derive State-wide Summary Statistics For Our Market Segment&lt;a id='2.7_Derive_State-wide_Summary_Statistics_For_Our_Market_Segment'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+You have, by this point removed one row, but it was for a resort that may not have opened yet, or perhaps in its first season. Using your business knowledge, you know that state-wide supply and demand of certain skiing resources may well factor into pricing strategies. Does a resort dominate the available night skiing in a state? Or does it account for a large proportion of the total skiable terrain or days open? 
+ 
+If you want to add any features to your data that captures the state-wide market size, you should do this now, before dropping any more rows. In the next section, you'll drop rows with missing price information. Although you don't know what those resorts charge for their tickets, you do know the resorts exists and have been open for at least six years. Thus, you'll now calculate some state-wide summary statistics for later use. <hr class="ls0">#%% md 
+Many features in your data pertain to chairlifts, that is for getting people around each resort. These aren't relevant, nor are the features relating to altitudes. Features that you may be interested in are: 
+ 
+* TerrainParks 
+* SkiableTerrain_ac 
+* daysOpenLastYear 
+* NightSkiing_ac 
+ 
+When you think about it, these are features it makes sense to sum: the total number of terrain parks, the total skiable area, the total number of days open, and the total area available for night skiing. You might consider the total number of ski runs, but understand that the skiable area is more informative than just a number of runs. <hr class="ls0">#%% md 
+A fairly new groupby behaviour is [named aggregation](https://pandas-docs.github.io/pandas-docs-travis/whatsnew/v0.25.0.html). This allows us to clearly perform the aggregations you want whilst also creating informative output column names. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 27#</span>
+<span class="s1">#Add named aggregations for the sum of 'daysOpenLastYear', 'TerrainParks', and 'NightSkiing_ac'</span>
+<span class="s1">#call them 'state_total_days_open', 'state_total_terrain_parks', and 'state_total_nightskiing_ac',</span>
+<span class="s1">#respectively</span>
+<span class="s1">#Finally, add a call to the reset_index() method (we recommend you experiment with and without this to see</span>
+<span class="s1">#what it does)</span>
+<span class="s0">state_summary = ski_data.groupby(</span><span class="s3">'state'</span><span class="s0">).agg(</span>
+    <span class="s0">resorts_per_state=pd.NamedAgg(column=</span><span class="s3">'Name'</span><span class="s0">, aggfunc=</span><span class="s3">'size'</span><span class="s0">), </span><span class="s1">#could pick any column here</span>
+    <span class="s0">state_total_skiable_area_ac=pd.NamedAgg(column=</span><span class="s3">'SkiableTerrain_ac'</span><span class="s0">, aggfunc=</span><span class="s3">'sum'</span><span class="s0">),</span>
+    <span class="s0">state_total_days_open=pd.NamedAgg(column=</span><span class="s3">'daysOpenLastYear'</span><span class="s0">, aggfunc=</span><span class="s3">'sum'</span><span class="s0">),</span>
+    <span class="s0">state_total_terrain_parks=pd.NamedAgg(column=</span><span class="s3">'TerrainParks'</span><span class="s0">, aggfunc=</span><span class="s3">'sum'</span><span class="s0">),</span>
+    <span class="s0">state_total_nightskiing_ac=pd.NamedAgg(column=</span><span class="s3">'NightSkiing_ac'</span><span class="s0">, aggfunc=</span><span class="s3">'sum'</span><span class="s0">)</span>
+<span class="s0">).reset_index()</span>
+<span class="s0">state_summary.head()</span><hr class="ls0"><span class="s0">#%% md 
+## 2.8 Drop Rows With No Price Data&lt;a id='2.8_Drop_Rows_With_No_Price_Data'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+You know there are two columns that refer to price: 'AdultWeekend' and 'AdultWeekday'. You can calculate the number of price values missing per row. This will obviously have to be either 0, 1, or 2, where 0 denotes no price values are missing and 2 denotes that both are missing. <hr class="ls0">#%% 
+missing_price = ski_data[[</span><span class="s3">'AdultWeekend'</span><span class="s0">, </span><span class="s3">'AdultWeekday'</span><span class="s0">]].isnull().sum(axis=</span><span class="s4">1</span><span class="s0">)</span>
+<span class="s0">missing_price.value_counts()/len(missing_price) * </span><span class="s4">100</span><hr class="ls0"><span class="s0">#%% md 
+About 14% of the rows have no price data. As the price is your target, these rows are of no use. Time to lose them. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 28#</span>
+<span class="s1">#Use `missing_price` to remove rows from ski_data where both price values are missing</span>
+<span class="s0">ski_data = ski_data[missing_price != </span><span class="s4">2</span><span class="s0">]</span><hr class="ls0"><span class="s0">#%% md 
+## 2.9 Review distributions&lt;a id='2.9_Review_distributions'&gt;&lt;/a&gt; <hr class="ls0">#%% 
+ski_data.hist(figsize=(</span><span class="s4">15</span><span class="s0">, </span><span class="s4">10</span><span class="s0">))</span>
+<span class="s0">plt.subplots_adjust(hspace=</span><span class="s4">0.5</span><span class="s0">);</span><hr class="ls0"><span class="s0">#%% md 
+These distributions are much better. There are clearly some skewed distributions, so keep an eye on `fastQuads`, `fastSixes`, and perhaps `trams`. These lack much variance away from 0 and may have a small number of relatively extreme values.  Models failing to rate a feature as important when domain knowledge tells you it should be is an issue to look out for, as is a model being overly influenced by some extreme values. If you build a good machine learning pipeline, hopefully it will be robust to such issues, but you may also wish to consider nonlinear transformations of features. <hr class="ls0">#%% md 
+## 2.10 Population data&lt;a id='2.10_Population_data'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Population and area data for the US states can be obtained from [wikipedia](https://simple.wikipedia.org/wiki/List_of_U.S._states). Listen, you should have a healthy concern about using data you &quot;found on the Internet&quot;. Make sure it comes from a reputable source. This table of data is useful because it allows you to easily pull and incorporate an external data set. It also allows you to proceed with an analysis that includes state sizes and populations for your 'first cut' model. Be explicit about your source (we documented it here in this workflow) and ensure it is open to inspection. All steps are subject to review, and it may be that a client has a specific source of data they trust that you should use to rerun the analysis. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 29#</span>
+<span class="s1">#Use pandas' `read_html` method to read the table from the URL below</span>
+
+<span class="s1">#Downloaded to csv to avoid 404 errors</span>
+
+<span class="s1">#import requests</span>
+
+<span class="s1">#states_url = 'https://simple.wikipedia.org/w/index.php?title=List_of_U.S._states&amp;oldid=7168473'</span>
+<span class="s1">#headers = {&quot;User-Agent&quot;: &quot;Mozilla/5.0&quot;}</span>
+<span class="s1">#response = requests.get(states_url, headers=headers)</span>
+
+<span class="s1">#usa_states_download = pd.read_html(response.text)</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1"># save the data to a new csv file</span>
+
+<span class="s1">#usa_states_download_df = usa_states_download[0]</span>
+<span class="s1">#datapath = '../raw_data'</span>
+<span class="s1">#save_file(usa_states_download_df, 'usa_states_download.csv', datapath)</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1"># load data from csv</span>
+<span class="s0">usa_states = pd.read_csv(</span><span class="s3">'../raw_data/usa_states_download.csv'</span><span class="s0">)</span><hr class="ls0"><span class="s0">#%% 
+type(usa_states)</span><hr class="ls0"><span class="s0">#%% 
+len(usa_states)</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">#usa_states = usa_states[0]</span>
+<span class="s0">usa_states.head()</span><hr class="ls0"><span class="s0">#%% md 
+Note, in even the last year, the capability of `pd.read_html()` has improved. The merged cells you see in the web table are now handled much more conveniently, with 'Phoenix' now being duplicated so the subsequent columns remain aligned. But check this anyway. If you extract the established date column, you should just get dates. Recall previously you used the `.loc` accessor, because you were using labels. Now you want to refer to a column by its index position and so use `.iloc`. For a discussion on the difference use cases of `.loc` and `.iloc` refer to the [pandas documentation](https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html). <hr class="ls0">#%% 
+</span><span class="s1">#Code task 30#</span>
+<span class="s1">#Use the iloc accessor to get the pandas Series for column number 4 from `usa_states`</span>
+<span class="s1">#It should be a column of dates</span>
+<span class="s0">established = usa_states.iloc[:, </span><span class="s4">4</span><span class="s0">]</span><hr class="ls0"><span class="s0">#%% 
+established</span><hr class="ls0"><span class="s0">#%% md 
+Extract the state name, population, and total area (square miles) columns. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 31#</span>
+<span class="s1">#Now use the iloc accessor again to extract columns 0, 5, and 6 and the dataframe's `copy()` method</span>
+<span class="s1">#Set the names of these extracted columns to 'state', 'state_population', and 'state_area_sq_miles',</span>
+<span class="s1">#respectively.</span>
+<span class="s0">usa_states_sub = usa_states.iloc[:, [</span><span class="s4">0</span><span class="s0">, </span><span class="s4">5</span><span class="s0">, </span><span class="s4">6</span><span class="s0">]].copy()</span>
+<span class="s0">usa_states_sub.columns = [</span><span class="s3">'state'</span><span class="s0">, </span><span class="s3">'state_population'</span><span class="s0">, </span><span class="s3">'state_area_sq_miles'</span><span class="s0">]</span>
+<span class="s0">usa_states_sub.head()</span><hr class="ls0"><span class="s0">#%% md 
+Do you have all the ski data states accounted for? <hr class="ls0">#%% 
+</span><span class="s1">#Code task 32#</span>
+<span class="s1">#Find the states in `state_summary` that are not in `usa_states_sub`</span>
+<span class="s1">#Hint: set(list1) - set(list2) is an easy way to get items in list1 that are not in list2</span>
+<span class="s0">missing_states = set(state_summary.state) - set(usa_states_sub.state)</span>
+<span class="s0">missing_states</span><hr class="ls0"><span class="s0">#%% md 
+No??  <hr class="ls0">#%% md 
+If you look at the table on the web, you can perhaps start to guess what the problem is. You can confirm your suspicion by pulling out state names that _contain_ 'Massachusetts', 'Pennsylvania', or 'Virginia' from usa_states_sub: <hr class="ls0">#%% 
+usa_states_sub.state[usa_states_sub.state.str.contains(</span><span class="s3">'Massachusetts|Pennsylvania|Rhode Island|Virginia'</span><span class="s0">)]</span><hr class="ls0"><span class="s0">#%% md 
+Delete square brackets and their contents and try again: <hr class="ls0">#%% 
+</span><span class="s1">#Code task 33#</span>
+<span class="s1">#Use pandas' Series' `replace()` method to replace anything within square brackets (including the brackets)</span>
+<span class="s1">#with the empty string. Do this inplace, so you need to specify the arguments:</span>
+<span class="s1">#to_replace='\[.*\]' #literal square bracket followed by anything or nothing followed by literal closing bracket</span>
+<span class="s1">#value='' #empty string as replacement</span>
+<span class="s1">#regex=True #we used a regex in our `to_replace` argument</span>
+<span class="s1">#inplace=True #Do this &quot;in place&quot;</span>
+<span class="s0">usa_states_sub.state.replace(to_replace=</span><span class="s3">'\[.*\]'</span><span class="s0">, value=</span><span class="s3">''</span><span class="s0">, regex=</span><span class="s2">True</span><span class="s0">, inplace=</span><span class="s2">True</span><span class="s0">)</span>
+<span class="s0">usa_states_sub.state[usa_states_sub.state.str.contains(</span><span class="s3">'Massachusetts|Pennsylvania|Rhode Island|Virginia'</span><span class="s0">)]</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1">#Code task 34#</span>
+<span class="s1">#And now verify none of our states are missing by checking that there are no states in</span>
+<span class="s1">#state_summary that are not in usa_states_sub (as earlier using `set()`)</span>
+<span class="s0">missing_states = set(state_summary.state) - set(usa_states_sub.state)</span>
+<span class="s0">missing_states</span><hr class="ls0"><span class="s0">#%% md 
+Better! You have an empty set for missing states now. You can confidently add the population and state area columns to the ski resort data. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 35#</span>
+<span class="s1">#Use 'state_summary's `merge()` method to combine our new data in 'usa_states_sub'</span>
+<span class="s1">#specify the arguments how='left' and on='state'</span>
+<span class="s0">state_summary = state_summary.merge(usa_states_sub, how=</span><span class="s3">'left'</span><span class="s0">, on=</span><span class="s3">'state'</span><span class="s0">)</span>
+<span class="s0">state_summary.head()</span><hr class="ls0"><span class="s0">#%% md 
+Having created this data frame of summary statistics for various states, it would seem obvious to join this with the ski resort data to augment it with this additional data. You will do this, but not now. In the next notebook you will be exploring the data, including the relationships between the states. For that you want a separate row for each state, as you have here, and joining the data this soon means you'd need to separate and eliminate redundances in the state data when you wanted it. <hr class="ls0">#%% md 
+## 2.11 Target Feature&lt;a id='2.11_Target_Feature'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Finally, what will your target be when modelling ticket price? What relationship is there between weekday and weekend prices? <hr class="ls0">#%% 
+</span><span class="s1">#Code task 36#</span>
+<span class="s1">#Use ski_data's `plot()` method to create a scatterplot (kind='scatter') with 'AdultWeekday' on the x-axis and</span>
+<span class="s1">#'AdultWeekend' on the y-axis</span>
+<span class="s0">ski_data.plot(x=</span><span class="s3">'AdultWeekday'</span><span class="s0">, y=</span><span class="s3">'AdultWeekend'</span><span class="s0">, kind=</span><span class="s3">'scatter'</span><span class="s0">);</span><hr class="ls0"><span class="s0">#%% md 
+A couple of observations can be made. Firstly, there is a clear line where weekend and weekday prices are equal. Weekend prices being higher than weekday prices seem restricted to sub $100 resorts. Recall from the boxplot earlier that the distribution for weekday and weekend prices in Montana seemed equal. Is this confirmed in the actual data for each resort? Big Mountain resort is in Montana, so the relationship between these quantities in this state are particularly relevant. <hr class="ls0">#%% 
+</span><span class="s1">#Code task 37#</span>
+<span class="s1">#Use the loc accessor on ski_data to print the 'AdultWeekend' and 'AdultWeekday' columns for Montana only</span>
+<span class="s0">ski_data.loc[ski_data.state == </span><span class="s3">&quot;Montana&quot;</span><span class="s0">, [</span><span class="s3">&quot;AdultWeekend&quot;</span><span class="s0">, </span><span class="s3">&quot;AdultWeekday&quot;</span><span class="s0">]]</span><hr class="ls0"><span class="s0">#%% md 
+Is there any reason to prefer weekend or weekday prices? Which is missing the least? <hr class="ls0">#%% 
+ski_data[[</span><span class="s3">'AdultWeekend'</span><span class="s0">, </span><span class="s3">'AdultWeekday'</span><span class="s0">]].isnull().sum()</span><hr class="ls0"><span class="s0">#%% md 
+Weekend prices have the least missing values of the two, so drop the weekday prices and then keep just the rows that have weekend price. <hr class="ls0">#%% 
+ski_data.drop(columns=</span><span class="s3">'AdultWeekday'</span><span class="s0">, inplace=</span><span class="s2">True</span><span class="s0">)</span>
+<span class="s0">ski_data.dropna(subset=[</span><span class="s3">'AdultWeekend'</span><span class="s0">], inplace=</span><span class="s2">True</span><span class="s0">)</span><hr class="ls0"><span class="s0">#%% 
+ski_data.shape</span><hr class="ls0"><span class="s0">#%% md 
+Perform a final quick check on the data. <hr class="ls0">#%% md 
+### 2.11.1 Number Of Missing Values By Row - Resort&lt;a id='2.11.1_Number_Of_Missing_Values_By_Row_-_Resort'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+Having dropped rows missing the desired target ticket price, what degree of missingness do you have for the remaining rows? <hr class="ls0">#%% 
+missing = pd.concat([ski_data.isnull().sum(axis=</span><span class="s4">1</span><span class="s0">), </span><span class="s4">100 </span><span class="s0">* ski_data.isnull().mean(axis=</span><span class="s4">1</span><span class="s0">)], axis=</span><span class="s4">1</span><span class="s0">)</span>
+<span class="s0">missing.columns=[</span><span class="s3">'count'</span><span class="s0">, </span><span class="s3">'%'</span><span class="s0">]</span>
+<span class="s0">missing.sort_values(by=</span><span class="s3">'count'</span><span class="s0">, ascending=</span><span class="s2">False</span><span class="s0">).head(</span><span class="s4">10</span><span class="s0">)</span><hr class="ls0"><span class="s0">#%% md 
+These seem possibly curiously quantized... <hr class="ls0">#%% 
+missing[</span><span class="s3">'%'</span><span class="s0">].unique()</span><hr class="ls0"><span class="s0">#%% md 
+Yes, the percentage of missing values per row appear in multiples of 4. <hr class="ls0">#%% 
+missing[</span><span class="s3">'%'</span><span class="s0">].value_counts()</span><hr class="ls0"><span class="s0">#%% md 
+This is almost as if values have been removed artificially... Nevertheless, what you don't know is how useful the missing features are in predicting ticket price. You shouldn't just drop rows that are missing several useless features. <hr class="ls0">#%% 
+ski_data.info()</span><hr class="ls0"><span class="s0">#%% md 
+There are still some missing values, and it's good to be aware of this, but leave them as is for now. <hr class="ls0">#%% md 
+## 2.12 Save data&lt;a id='2.12_Save_data'&gt;&lt;/a&gt; <hr class="ls0">#%% 
+ski_data.shape</span><hr class="ls0"><span class="s0">#%% md 
+Save this to your data directory, separately. Note that you were provided with the data in `raw_data` and you should saving derived data in a separate location. This guards against overwriting our original data. <hr class="ls0">#%% 
+</span><span class="s1"># save the data to a new csv file</span>
+<span class="s0">datapath = </span><span class="s3">'../data'</span>
+<span class="s0">save_file(ski_data, </span><span class="s3">'ski_data_cleaned.csv'</span><span class="s0">, datapath)</span><hr class="ls0"><span class="s0">#%% 
+</span><span class="s1"># save the state_summary separately.</span>
+<span class="s0">datapath = </span><span class="s3">'../data'</span>
+<span class="s0">save_file(state_summary, </span><span class="s3">'state_summary.csv'</span><span class="s0">, datapath)</span><hr class="ls0"><span class="s0">#%% md 
+## 2.13 Summary&lt;a id='2.13_Summary'&gt;&lt;/a&gt; <hr class="ls0">#%% md 
+**Q: 3** Write a summary statement that highlights the key processes and findings from this notebook. This should include information such as the original number of rows in the data, whether our own resort was actually present etc. What columns, if any, have been removed? Any rows? Summarise the reasons why. Were any other issues found? What remedial actions did you take? State where you are in the project. Can you confirm what the target feature is for your desire to predict ticket price? How many rows were left in the data? Hint: this is a great opportunity to reread your notebook, check all cells have been executed in order and from a &quot;blank slate&quot; (restarting the kernel will do this), and that your workflow makes sense and follows a logical pattern. As you do this you can pull out salient information for inclusion in this summary. Thus, this section will provide an important overview of &quot;what&quot; and &quot;why&quot; without having to dive into the &quot;how&quot; or any unproductive or inconclusive steps along the way. <hr class="ls0">#%% md 
+**A: 3** Your answer here</span></pre>
+</body>
+</html>
